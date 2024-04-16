@@ -1,0 +1,14 @@
+{
+  "name": "Katcheri",
+  "description": "Records the current tab in an offscreen document.",
+  "version": "1",
+  "manifest_version": 3,
+  "minimum_chrome_version": "116",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "permissions": ["tabs", "storage", "tabCapture", "activeTab", "offscreen"]
+}

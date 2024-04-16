@@ -1,0 +1,58 @@
+.main {
+  width: 400px;
+  height: 644px;
+  border: 1px solid #dedede;
+  border-radius: 8px;
+}
+
+@media (max-width: 481px) {
+  .main {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+}
+
+.main-header {
+  height: 84px;
+  border-bottom: 1px solid #dedede;
+}
+
+.main-header__title {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.main-body {
+  flex: 1;
+  padding: 48px;
+  padding-top: 128px;
+}
+
+.main-footer {
+  height: 44px;
+  border-top: 1px solid #dedede;
+}
+
+.create-description {
+  margin-bottom: 24px;
+  font-size: 22px;
+}
+
+#create-party-btn {
+  display: block;
+}
+
+.party-cta {
+  gap: 32px;
+}
+
+#create-party-btn {
+  padding: 8px;
+  border-radius: 8px;
+}
+
+#join-party-btn {
+  padding: 8px;
+  border-radius: 8px;
+}
