@@ -1,8 +1,6 @@
-const express = require("express");
-const uuid = require("./uuid");
-const httpLogger = require("./http-logger");
-const bodyParser = require("body-parser");
-const Socket = require("./ws-server");
+import express from "express";
+import logger from "./logger.js";
+import Socket from "./ws-server.js";
 
 // modules
 
@@ -11,19 +9,9 @@ const app = express();
 
 app.use(express.static("dist/web"));
 
-// adding unique id for every request
-app.use(uuid);
-
-// add body parsers
-app.use(bodyParser.json());
-
-// log all http req/res
-app.use(httpLogger.req);
-app.use(httpLogger.res);
-
 // listen for request
 app.listen(8000, function () {
-  console.log("server running on port", 8000);
+  logger.log(`server running on port 8000`);
 });
 
 // Creating websocket

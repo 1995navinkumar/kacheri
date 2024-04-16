@@ -11,7 +11,11 @@ RUN npm install
 
 # copy from repo to container
 COPY . .
+RUN BASE=kacheri npm run build-web
+RUN npm run build-extension
+
 
 EXPOSE 8000 8080
+
 
 CMD ["npm", "start"]

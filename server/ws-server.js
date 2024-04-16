@@ -1,5 +1,8 @@
-const WebSocket = require("ws");
-const uuidv1 = require("uuid/v1");
+import WebSocket from "ws";
+import { createLogger } from "./logger.js";
+
+const logger = createLogger({ moduleName: "wsLogger" });
+
 const pipe =
   (...fns) =>
   (x) =>
@@ -8,14 +11,14 @@ let liveSockets = {};
 let wss;
 
 function noop() {
-  console.log("pinging active clients");
+  logger.log("pinging active clients");
 }
 
 function heartbeat() {
   this.isAlive = true;
 }
 
-module.exports = function Socket() {
+export default function Socket() {
   wss = new WebSocket.Server({ port: 8080 });
   wss.on("connection", function connection(ws, req) {
     storeClientWS(ws);
@@ -23,16 +26,16 @@ module.exports = function Socket() {
     ws.isAlive = true;
     ws.on("pong", heartbeat);
     ws.on("close", function () {
-      console.log("terminating broken connections");
+      logger.log("terminating broken connections");
       liveSockets[ws.protocol] = undefined;
     });
   });
-};
+}
 
 setInterval(function ping() {
   wss.clients.forEach(function each(ws) {
     if (ws.isAlive === false) {
-      console.log("terminating broken connections");
+      logger.log("terminating broken connections");
       return ws.terminate();
     }
 
@@ -65,12 +68,12 @@ function actionInvoker(data) {
 
 var actions = {
   "create-party": function createParty(data) {
-    console.log("creating a party");
+    logger.log("creating a party");
     var party = PartyManager.newParty(data.partyId);
     party.addClient("master", data.clientId);
   },
   "join-party": function joinParty(data) {
-    console.log(`Join party ${data}`);
+    logger.log(`Join party ${data}`);
     var party = PartyManager.getParty(data.partyId);
     party.addClient("slave", data.clientId);
     var masterClient = party.getMasterClient();
@@ -80,7 +83,7 @@ var actions = {
     });
   },
   offer: function sendOfferAndRequestAnswer(data) {
-    console.log(`sendOffer ${data}`);
+    logger.log(`sendOffer ${data}`);
     var party = PartyManager.getParty(data.partyId);
     var client = party.getClient(data.clientId);
     client.description = data.offer;
@@ -90,7 +93,7 @@ var actions = {
     });
   },
   answer: function sendAnswer(data) {
-    console.log(`sendAnswer ${data}`);
+    logger.log(`sendAnswer ${data}`);
     var party = PartyManager.getParty(data.partyId);
     var client = party.getClient(data.clientId);
     client.description = data.answer;
@@ -100,7 +103,7 @@ var actions = {
     });
   },
   "offer-candidate": function offerCandidate(data) {
-    console.log(`offerCandidate ${data}`);
+    logger.log(`offerCandidate ${data}`);
     var party = PartyManager.getParty(data.partyId);
     var client = party.getClient(data.clientId);
     var clientType = client.type;
@@ -119,7 +122,7 @@ var actions = {
 function signal(clients, message) {
   clients.forEach((client) => {
     var socket = liveSockets[client.id];
-    console.log(`signalling socket with clientId : ${client.id}`);
+    logger.log(`signalling socket with clientId : ${client.id}`);
     socket.send(JSON.stringify(message));
   });
 }
