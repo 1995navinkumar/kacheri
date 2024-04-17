@@ -12,6 +12,7 @@
     "docker-run": "docker run -d -p 8080:8080 -p 8000:8000 kacheri"
   },
   "dependencies": {
+    "@grafana/faro-web-sdk": "1.2.5",
     "express": "^4.17.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
