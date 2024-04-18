@@ -1,6 +1,10 @@
 import { sendMessage, receiveMessage } from "./chromeMessageHandler";
 import { createLogger } from "./logger";
-import createSocket from "./utils";
+import {
+  createSocket,
+  receiveMessageFromSocket,
+  sendMessageToSocket,
+} from "./socketMessageHandler";
 
 const logger = createLogger({ moduleName: "service-worker" });
 
@@ -17,7 +21,7 @@ receiveMessage("capture-audio", async (message) => {
   try {
     const recording = await createOffScreenDocument();
     if (recording) {
-      // return;
+      return;
     }
     const tabId = await getTab();
     logger.log(tabId.toString());
@@ -28,6 +32,14 @@ receiveMessage("capture-audio", async (message) => {
   } catch (err) {
     logger.error(err);
   }
+});
+
+receiveMessage("create-party-request", async (message) => {
+  sendMessageToSocket({
+    type: "create-party-request",
+    clientId: message.clientId,
+  });
+  receiveMessageFromSocket("create-party-response", sendMessage);
 });
 
 async function createOffScreenDocument() {

@@ -2,8 +2,11 @@ import { useEffect, ReactNode } from "react";
 import { createContext, useContext } from "react";
 import { getItem, setItem, uuid } from "../utils";
 
+export type Mode = "web" | "extension";
+
 export type Config = {
   clientId: string;
+  mode: Mode;
 };
 
 const ConfigContext = createContext<Config | null>(null);
@@ -24,12 +27,14 @@ export default function ConfigProvider({
   children: ReactNode;
 }): JSX.Element {
   const clientId = getItem(CLIENT_ID, uuid().toString());
+  const mode = process.env.MODE === "web" ? "web" : "extension";
+
   useEffect(() => {
     setItem(CLIENT_ID, clientId);
   }, []);
 
   return (
-    <ConfigContext.Provider value={{ clientId }}>
+    <ConfigContext.Provider value={{ clientId, mode }}>
       {children}
     </ConfigContext.Provider>
   );

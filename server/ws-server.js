@@ -58,19 +58,26 @@ function storeClientWS(ws, req) {
 }
 
 function messageParser(message) {
+  logger.log(message);
   return JSON.parse(message);
 }
 
 function actionInvoker(data) {
-  var action = data.action;
+  var action = data.type;
   return actions[action](data);
 }
 
 var actions = {
-  "create-party": function createParty(data) {
+  "create-party-request": function createParty(data) {
     logger.log("creating a party");
-    var party = PartyManager.newParty(data.partyId);
+    var party = PartyManager.newParty("kacheri");
     party.addClient("master", data.clientId);
+    var masterClient = party.getMasterClient();
+    signal([masterClient], {
+      type: "create-party-response",
+      partyId: party.id,
+      success: true,
+    });
   },
   "join-party": function joinParty(data) {
     logger.log(`Join party ${data}`);
@@ -78,7 +85,7 @@ var actions = {
     party.addClient("slave", data.clientId);
     var masterClient = party.getMasterClient();
     signal([masterClient], {
-      action: "offer-request",
+      type: "offer-request",
       clientId: data.clientId,
     });
   },
@@ -88,7 +95,7 @@ var actions = {
     var client = party.getClient(data.clientId);
     client.description = data.offer;
     signal(party.getSlaveClients(), {
-      action: "answer-request",
+      type: "answer-request",
       offer: client.description,
     });
   },
@@ -98,7 +105,7 @@ var actions = {
     var client = party.getClient(data.clientId);
     client.description = data.answer;
     signal([party.getMasterClient()], {
-      action: "answer-response",
+      type: "answer-response",
       answer: client.description,
     });
   },
@@ -108,7 +115,7 @@ var actions = {
     var client = party.getClient(data.clientId);
     var clientType = client.type;
     var message = {
-      action: "set-remote-candidate",
+      type: "set-remote-candidate",
       candidate: data.candidate,
     };
     if (clientType == "master") {
@@ -123,7 +130,7 @@ function signal(clients, message) {
   clients.forEach((client) => {
     var socket = liveSockets[client.id];
     logger.log(`signalling socket with clientId : ${client.id}`);
-    socket.send(JSON.stringify(message));
+    socket?.send(JSON.stringify(message));
   });
 }
 

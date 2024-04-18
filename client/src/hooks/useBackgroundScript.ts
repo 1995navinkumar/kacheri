@@ -1,4 +1,4 @@
-import { receiveMessage, sendMessage } from "../../chromeMessageHandler";
+import { receiveMessage, sendMessage } from "../chromeMessageHandler";
 
 export default function useBackgroundScript() {
   return {
@@ -22,6 +22,23 @@ export default function useBackgroundScript() {
         receiveMessage("capture-audio-response", (message) => {
           if (message.success) {
             resolve(message);
+          } else {
+            reject(message);
+          }
+        });
+      });
+    },
+    createPartyRequest: async ({
+      clientId,
+    }: {
+      clientId: string;
+    }): Promise<{ partyId: string }> => {
+      return new Promise((resolve, reject) => {
+        sendMessage({ type: "create-party-request", clientId });
+
+        receiveMessage("create-party-response", (message) => {
+          if (message.success) {
+            resolve({ partyId: message.partyId });
           } else {
             reject(message);
           }
