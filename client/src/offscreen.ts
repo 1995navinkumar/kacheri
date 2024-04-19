@@ -27,7 +27,7 @@ receiveMessage("capture-stream", async (message) => {
 
     const output = new AudioContext();
     source = output.createMediaStreamSource(media);
-    // source.connect(output.destination);
+    source.connect(output.destination);
 
     debug({ message: "connected" });
 
