@@ -11,7 +11,7 @@
     "watch-web": "MODE=web ENV=development node es-build.mjs",
     "watch-extension": "MODE=extension ENV=development node es-build.mjs",
     "build": "run-p build-web build-extension",
-    "build-web": "MODE=web ENV=production node es-build.mjs",
+    "build-web": "BASE=kacheri MODE=web ENV=production node es-build.mjs",
     "build-extension": "MODE=extension ENV=production node es-build.mjs",
     "docker-build": "docker build -t kacheri .",
     "docker-run": "docker run -d -p 8080:8080 -p 8000:8000 kacheri"
