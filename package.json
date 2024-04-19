@@ -5,19 +5,27 @@
   "type": "module",
   "scripts": {
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "dev-serve": "nodemon server/index.js",
     "start": "node server/index.js",
-    "build-web": "MODE=web node es-build.mjs",
-    "build-extension": "MODE=extension node es-build.mjs",
+    "watch": "run-p watch-web watch-extension",
+    "watch-web": "MODE=web ENV=development node es-build.mjs",
+    "watch-extension": "MODE=extension ENV=development node es-build.mjs",
+    "build": "run-p build-web build-extension",
+    "build-web": "BASE=kacheri MODE=web ENV=production node es-build.mjs",
+    "build-extension": "MODE=extension ENV=production node es-build.mjs",
     "docker-build": "docker build -t kacheri .",
     "docker-run": "docker run -d -p 8080:8080 -p 8000:8000 kacheri"
   },
   "dependencies": {
+    "@grafana/faro-web-sdk": "1.2.5",
+    "@types/websocket": "^1.0.10",
     "express": "^4.17.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "ws": "^7.2.0"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.266",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
@@ -27,6 +35,8 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "nodemon": "^3.1.0",
+    "npm-run-all": "^4.1.5",
     "typescript": "^5.2.2"
   }
 }

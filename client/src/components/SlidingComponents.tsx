@@ -1,15 +1,22 @@
 import ComponentSlider from "./ComponentSlider";
 import CreateOrJoin from "./CreateOrJoin";
-import Party from "./Party";
+import DJScreen from "./DJScreen.tsx";
+import RasigarScreen from "./RasigarScreen";
 
-export const SlidingLeftCreateOrJoin = () => (
+export const SlidingRightCreateOrJoin = () => (
   <ComponentSlider direction="left">
     <CreateOrJoin />
   </ComponentSlider>
 );
 
-export const SlidingLeftParty = () => (
+export const SlidingLeftRasigarScreen = () => (
   <ComponentSlider direction="left">
-    <Party />
+    <RasigarScreen />
+  </ComponentSlider>
+);
+
+export const SlidingLeftDJScreen = () => (
+  <ComponentSlider direction="left">
+    <DJScreen />
   </ComponentSlider>
 );
