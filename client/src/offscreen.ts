@@ -1,5 +1,6 @@
 import { receiveMessage, sendMessage } from "./chromeMessageHandler";
 import { createLogger } from "./logger";
+import { CreateDJPeer } from "./WebRTC";
 
 const logger = createLogger({ moduleName: "offscreen" });
 
@@ -26,7 +27,7 @@ receiveMessage("capture-stream", async (message) => {
 
     const output = new AudioContext();
     source = output.createMediaStreamSource(media);
-    source.connect(output.destination);
+    // source.connect(output.destination);
 
     debug({ message: "connected" });
 
@@ -38,6 +39,14 @@ receiveMessage("capture-stream", async (message) => {
     debug({ err: err.message });
     sendMessage({ type: "capture-audio-response", success: false, err });
   }
+});
+
+receiveMessage("create-dj-peer", (message) => {
+  CreateDJPeer({
+    clientId: message.clientId,
+    mediaStream: media,
+    partyId: message.partyId,
+  });
 });
 
 receiveMessage("stop-streaming", (message) => {

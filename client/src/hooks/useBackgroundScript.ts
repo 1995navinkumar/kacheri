@@ -45,5 +45,9 @@ export default function useBackgroundScript() {
         });
       });
     },
+
+    stopKacheri: async () => {
+      sendMessage({ type: "stop-streaming" });
+    },
   };
 }

@@ -42,6 +42,21 @@ receiveMessage("create-party-request", async (message) => {
   receiveMessageFromSocket("create-party-response", sendMessage);
 });
 
+receiveMessage("initiate-peer", async (message) => {
+  sendMessage({
+    type: "create-dj-peer",
+    clientId: message.clientId,
+    partyId: message.partyId,
+  });
+  receiveMessageFromSocket("offer-request", sendMessage);
+  receiveMessageFromSocket("answer-response", sendMessage);
+  receiveMessageFromSocket("set-remote-candidate", sendMessage);
+});
+
+receiveMessage("offer", sendMessageToSocket);
+
+receiveMessage("offer-candidate", sendMessageToSocket);
+
 async function createOffScreenDocument() {
   const existingContexts = await chrome.runtime.getContexts({});
   let recording = false;

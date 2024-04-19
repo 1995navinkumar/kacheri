@@ -82,11 +82,24 @@ var actions = {
   "join-party": function joinParty(data) {
     logger.log(`Join party ${data}`);
     var party = PartyManager.getParty(data.partyId);
+    if (!party) {
+      signal([{ id: data.clientId }], {
+        type: "join-party-response",
+        success: false,
+        reason: "No party found with the ID",
+      });
+      return;
+    }
     party.addClient("slave", data.clientId);
     var masterClient = party.getMasterClient();
     signal([masterClient], {
       type: "offer-request",
       clientId: data.clientId,
+    });
+
+    signal([{ id: data.clientId }], {
+      type: "join-party-response",
+      success: true,
     });
   },
   offer: function sendOfferAndRequestAnswer(data) {

@@ -46,6 +46,9 @@ export function receiveMessageFromSocket(
   messageType: string,
   callback: (message: any) => void
 ): void {
+  if (!socket) {
+    throw new Error("No active socket");
+  }
   socket.addEventListener("message", (event) => {
     const message = JSON.parse(event.data);
     if (message.type === messageType) {
