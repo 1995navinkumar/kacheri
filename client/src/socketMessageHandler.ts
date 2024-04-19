@@ -13,10 +13,12 @@ export function createSocket({
 }): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
     const hostName = location.hostname;
-    const pathname = location.pathname;
     let connection: WebSocket;
     if (process.env.ENV === "production") {
-      connection = new WebSocket(`wss://${hostName}${pathname}/ws`, username);
+      connection = new WebSocket(
+        `wss://gently-concise-dogfish.ngrok-free.app/kacheri/ws`,
+        username
+      );
     } else {
       if (process.env.MODE === "extension") {
         connection = new WebSocket(`ws://localhost:8080`, username);
