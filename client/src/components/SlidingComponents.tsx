@@ -9,9 +9,9 @@ export const SlidingRightCreateOrJoin = () => (
   </ComponentSlider>
 );
 
-export const SlidingLeftRasigarScreen = () => (
+export const SlidingLeftRasigarScreen = ({ audioControls }) => (
   <ComponentSlider direction="left">
-    <RasigarScreen />
+    <RasigarScreen audioControls={audioControls} />
   </ComponentSlider>
 );
 

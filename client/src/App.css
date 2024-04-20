@@ -39,27 +39,11 @@
   font-size: 22px;
 }
 
-#create-party-btn {
-  display: block;
-}
-
-.party-cta {
+.kacheri-cta {
   gap: 32px;
 }
 
-#create-party-btn {
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #dedede;
-}
-
-#join-party-btn {
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #dedede;
-}
-
-.stop-btn {
+.cta-btn {
   padding: 8px;
   border-radius: 8px;
   border: 1px solid #dedede;
@@ -67,6 +51,12 @@
 
 .join-input {
   padding: 8px;
-  border-radius: 4px;
+  border-radius: 8px;
   border: 1px solid #dedede;
+}
+
+.play-btn {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
 }

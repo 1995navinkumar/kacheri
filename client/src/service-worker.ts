@@ -19,10 +19,7 @@ receiveMessage("create-socket", async (message) => {
 
 receiveMessage("capture-audio", async (message) => {
   try {
-    const recording = await createOffScreenDocument();
-    if (recording) {
-      return;
-    }
+    await createOffScreenDocument();
     const tabId = await getTab();
     logger.log(tabId.toString());
     const mediaStreamId = await getAudioStream(tabId);
@@ -34,19 +31,27 @@ receiveMessage("capture-audio", async (message) => {
   }
 });
 
-receiveMessage("create-party-request", async (message) => {
+receiveMessage("create-kacheri-request", async (message) => {
   sendMessageToSocket({
-    type: "create-party-request",
+    type: "create-kacheri-request",
     clientId: message.clientId,
   });
-  receiveMessageFromSocket("create-party-response", sendMessage);
+  receiveMessageFromSocket("create-kacheri-response", sendMessage);
+});
+
+receiveMessage("delete-kacheri-request", (message) => {
+  sendMessageToSocket({
+    type: "delete-kacheri-request",
+    clientId: message.clientId,
+  });
+  deleteOffScreenDocument();
 });
 
 receiveMessage("initiate-peer", async (message) => {
   sendMessage({
     type: "create-dj-peer",
     clientId: message.clientId,
-    partyId: message.partyId,
+    kacheriId: message.kacheriId,
   });
   receiveMessageFromSocket("offer-request", sendMessage);
   receiveMessageFromSocket("answer-response", sendMessage);
@@ -57,29 +62,31 @@ receiveMessage("offer", sendMessageToSocket);
 
 receiveMessage("offer-candidate", sendMessageToSocket);
 
+async function deleteOffScreenDocument() {
+  return chrome.offscreen.closeDocument();
+}
+
 async function createOffScreenDocument() {
   const existingContexts = await chrome.runtime.getContexts({});
-  let recording = false;
 
   const offscreenDocument = existingContexts.find(
     (c) => c.contextType === "OFFSCREEN_DOCUMENT"
   );
 
-  if (!offscreenDocument) {
-    logger.log("creating new offscreen doc");
-
-    await chrome.offscreen.createDocument({
-      url: "offscreen.html",
-      reasons: [chrome.offscreen.Reason.WEB_RTC],
-      justification: "Recording from chrome.tabCapture API",
-    });
-    logger.log("created new offscreen doc");
-  } else {
-    logger.log("offscreen doc exists");
-    recording = offscreenDocument.documentUrl.endsWith("#recording");
+  if (offscreenDocument) {
+    deleteOffScreenDocument();
   }
 
-  return recording;
+  logger.log("creating new offscreen doc");
+
+  await chrome.offscreen.createDocument({
+    url: "offscreen.html",
+    reasons: [chrome.offscreen.Reason.WEB_RTC],
+    justification: "Recording from chrome.tabCapture API",
+  });
+  logger.log("created new offscreen doc");
+
+  return;
 }
 
 async function getTab(): Promise<number> {

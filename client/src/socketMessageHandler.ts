@@ -12,6 +12,10 @@ export function createSocket({
   username: string;
 }): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
+    if (socket && socket.readyState === socket.OPEN) {
+      logger.log("socket already open, using existing one");
+      resolve(socket);
+    }
     const hostName = location.hostname;
     let connection: WebSocket;
     if (process.env.ENV === "production") {

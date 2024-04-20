@@ -35,48 +35,53 @@ const iceServers = [
 
 export function CreateDJPeer({
   clientId,
-  partyId,
+  kacheriId,
   mediaStream,
 }: {
   clientId: string;
-  partyId: string;
+  kacheriId: string;
   mediaStream: MediaStream;
 }) {
-  let DJPeer: RTCPeerConnection;
+  let DJPeers: Record<string, RTCPeerConnection> = {};
 
   const constraints: RTCOfferOptions = {
     offerToReceiveAudio: true,
   };
 
-  function handleMasterICECandidateEvent(event: RTCPeerConnectionIceEvent) {
+  function handleMasterICECandidateEvent(
+    event: RTCPeerConnectionIceEvent,
+    rasigarId: string
+  ) {
     if (event.candidate) {
       sendMessage({
-        partyId,
+        kacheriId,
         clientId,
+        rasigarId,
         type: "offer-candidate",
         candidate: event.candidate,
       });
     }
   }
 
-  async function handleNegotiationNeededEvent() {
+  async function handleNegotiationNeededEvent(rasigarId: string) {
     try {
+      const DJPeer = DJPeers[rasigarId];
       const offer = await DJPeer.createOffer(constraints);
       // If the connection hasn't yet achieved the "stable" state,
       // return to the caller. Another negotiationneeded event
       // will be fired when the state stabilizes.
       if (DJPeer.signalingState != "stable") {
-        logger.log("     -- The connection isn't stable yet; postponing...");
+        logger.log("The connection isn't stable yet; postponing...");
         return;
       }
 
       await DJPeer.setLocalDescription(offer);
-      logger.log("master.setLocalDescription");
 
       sendMessage({
         type: "offer",
         clientId,
-        partyId,
+        rasigarId,
+        kacheriId,
         offer: DJPeer.localDescription,
       });
     } catch (error) {
@@ -85,13 +90,18 @@ export function CreateDJPeer({
   }
 
   receiveMessage("offer-request", (message) => {
-    DJPeer = new RTCPeerConnection({
+    const { rasigarId } = message;
+
+    const DJPeer = new RTCPeerConnection({
       iceServers,
     });
 
-    DJPeer.onicecandidate = handleMasterICECandidateEvent;
+    DJPeers[rasigarId] = DJPeer;
+
+    DJPeer.onicecandidate = (event) =>
+      handleMasterICECandidateEvent(event, rasigarId);
     //Event triggered when negotiation can take place as RTCpeer won't be stable
-    DJPeer.onnegotiationneeded = handleNegotiationNeededEvent;
+    DJPeer.onnegotiationneeded = () => handleNegotiationNeededEvent(rasigarId);
 
     for (const track of mediaStream.getTracks()) {
       DJPeer.addTrack(track, mediaStream);
@@ -100,17 +110,18 @@ export function CreateDJPeer({
 
   receiveMessage("answer-response", async (message) => {
     try {
-      logger.log("Answer Received");
+      const { rasigarId } = message;
+      const DJPeer = DJPeers[rasigarId];
       var desc = new RTCSessionDescription(message.answer);
-      logger.log("new RTCSessionDescription");
       await DJPeer.setRemoteDescription(desc);
-      logger.log("master.setRemoteDescription");
     } catch (err) {
       logger.log(`Error in setting remote description ${err}`);
     }
   });
 
   receiveMessage("set-remote-candidate", (message) => {
+    const { rasigarId } = message;
+    const DJPeer = DJPeers[rasigarId];
     var candidate = new RTCIceCandidate(message.candidate);
     logger.log("Adding received ICE candidate from slave");
     DJPeer.addIceCandidate(candidate);
@@ -119,11 +130,11 @@ export function CreateDJPeer({
 
 export function CreateRasigarPeer({
   clientId,
-  partyId,
+  kacheriId,
   audioPlayer = new Audio(),
 }: {
   clientId: string;
-  partyId: string;
+  kacheriId: string;
   audioPlayer?: HTMLAudioElement;
 }) {
   let rasigarPeer = new RTCPeerConnection({
@@ -142,7 +153,7 @@ export function CreateRasigarPeer({
     if (event.candidate) {
       sendMessageToSocket({
         clientId,
-        partyId,
+        kacheriId,
         type: "offer-candidate",
         candidate: event.candidate,
       });
@@ -185,7 +196,7 @@ export function CreateRasigarPeer({
 
       sendMessageToSocket({
         clientId,
-        partyId,
+        kacheriId,
         type: "answer",
         answer: rasigarPeer.localDescription,
       });

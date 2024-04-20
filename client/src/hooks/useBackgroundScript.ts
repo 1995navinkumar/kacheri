@@ -1,6 +1,8 @@
 import { receiveMessage, sendMessage } from "../chromeMessageHandler";
+import { useConfig } from "../Providers/ConfigProvider";
 
 export default function useBackgroundScript() {
+  const { clientId } = useConfig();
   return {
     createSocket: async ({ clientId }: { clientId: string }) => {
       return new Promise((resolve, reject) => {
@@ -28,17 +30,17 @@ export default function useBackgroundScript() {
         });
       });
     },
-    createPartyRequest: async ({
+    createKacheriRequest: async ({
       clientId,
     }: {
       clientId: string;
-    }): Promise<{ partyId: string }> => {
+    }): Promise<{ kacheriId: string }> => {
       return new Promise((resolve, reject) => {
-        sendMessage({ type: "create-party-request", clientId });
+        sendMessage({ type: "create-kacheri-request", clientId });
 
-        receiveMessage("create-party-response", (message) => {
+        receiveMessage("create-kacheri-response", (message) => {
           if (message.success) {
-            resolve({ partyId: message.partyId });
+            resolve({ kacheriId: message.kacheriId });
           } else {
             reject(message);
           }
@@ -47,7 +49,7 @@ export default function useBackgroundScript() {
     },
 
     stopKacheri: async () => {
-      sendMessage({ type: "stop-streaming" });
+      sendMessage({ type: "stop-kacheri", clientId });
     },
   };
 }

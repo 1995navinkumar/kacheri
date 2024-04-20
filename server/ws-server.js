@@ -1,4 +1,5 @@
 import WebSocket from "ws";
+import { CreateKacheri, deleteKacheri, getKacheri } from "./kacheri.js";
 import { createLogger } from "./logger.js";
 
 const logger = createLogger({ moduleName: "wsLogger" });
@@ -7,11 +8,12 @@ const pipe =
   (...fns) =>
   (x) =>
     fns.reduce((y, f) => f(y), x);
+
 let liveSockets = {};
 let wss;
 
 function noop() {
-  logger.log("pinging active clients");
+  // logger.log("pinging active clients");
 }
 
 function heartbeat() {
@@ -47,11 +49,10 @@ setInterval(function ping() {
 function storeClientWS(ws, req) {
   //has to improve
   var user = ws.protocol;
-  // var uuid = uuidv1();
   liveSockets[user] = ws;
   ws.send(
     JSON.stringify({
-      action: "connection",
+      type: "connection",
       uuid: user,
     })
   );
@@ -68,118 +69,99 @@ function actionInvoker(data) {
 }
 
 var actions = {
-  "create-party-request": function createParty(data) {
-    logger.log("creating a party");
-    var party = PartyManager.newParty("kacheri");
-    party.addClient("master", data.clientId);
-    var masterClient = party.getMasterClient();
-    signal([masterClient], {
-      type: "create-party-response",
-      partyId: party.id,
+  "create-kacheri-request": function createKacheri(data) {
+    logger.log("creating a kacheri");
+
+    const kacheri = CreateKacheri({ uid: data.clientId });
+    kacheri.setDJ({ clientId: data.clientId });
+    signal(data.clientId, {
+      type: "create-kacheri-response",
+      kacheriId: kacheri.id,
       success: true,
     });
+
+    logger.log(`kacheri created - ${kacheri.id}`);
   },
-  "join-party": function joinParty(data) {
-    logger.log(`Join party ${data}`);
-    var party = PartyManager.getParty(data.partyId);
-    if (!party) {
-      signal([{ id: data.clientId }], {
-        type: "join-party-response",
+
+  "delete-kacheri-request": function destroyKacheri(data) {
+    deleteKacheri({ id: data.clientId });
+    logger.log(`Kacheri deleted - ${data.clientId}`);
+  },
+
+  "join-kacheri": function joinKacheri(data) {
+    const { kacheriId, clientId } = data;
+
+    logger.log(`Joining kacheri - ${kacheriId}`);
+
+    const kacheri = getKacheri({ id: kacheriId });
+
+    if (!kacheri) {
+      signal(clientId, {
+        type: "join-kacheri-response",
         success: false,
-        reason: "No party found with the ID",
+        reason: `No kacheri found with the ID - ${kacheriId}`,
       });
       return;
     }
-    party.addClient("slave", data.clientId);
-    var masterClient = party.getMasterClient();
-    signal([masterClient], {
+
+    kacheri.addRasigar({ clientId });
+
+    signal(kacheri.getDJ(), {
       type: "offer-request",
-      clientId: data.clientId,
+      rasigarId: clientId,
     });
 
-    signal([{ id: data.clientId }], {
-      type: "join-party-response",
+    signal(clientId, {
+      type: "join-kacheri-response",
       success: true,
     });
   },
+
   offer: function sendOfferAndRequestAnswer(data) {
-    logger.log(`sendOffer ${data}`);
-    var party = PartyManager.getParty(data.partyId);
-    var client = party.getClient(data.clientId);
-    client.description = data.offer;
-    signal(party.getSlaveClients(), {
+    const { rasigarId, offer } = data;
+
+    signal(rasigarId, {
       type: "answer-request",
-      offer: client.description,
+      offer,
     });
   },
+
   answer: function sendAnswer(data) {
-    logger.log(`sendAnswer ${data}`);
-    var party = PartyManager.getParty(data.partyId);
-    var client = party.getClient(data.clientId);
-    client.description = data.answer;
-    signal([party.getMasterClient()], {
+    const { clientId, kacheriId, answer } = data;
+
+    // send answer to DJ within a kacheri
+    const kacheri = getKacheri({ id: kacheriId });
+    const dj = kacheri.getDJ();
+    signal(dj, {
       type: "answer-response",
-      answer: client.description,
+      answer,
+      rasigarId: clientId,
     });
   },
+
   "offer-candidate": function offerCandidate(data) {
-    logger.log(`offerCandidate ${data}`);
-    var party = PartyManager.getParty(data.partyId);
-    var client = party.getClient(data.clientId);
-    var clientType = client.type;
-    var message = {
+    const { clientId, kacheriId, candidate, rasigarId } = data;
+
+    const kacheri = getKacheri({ id: kacheriId });
+
+    const message = {
       type: "set-remote-candidate",
-      candidate: data.candidate,
+      candidate,
     };
-    if (clientType == "master") {
-      signal(party.getSlaveClients(), message);
+
+    if (rasigarId) {
+      // candidate came from DJ
+      signal(rasigarId, message);
     } else {
-      signal([party.getMasterClient()], message);
+      // candidate came from rasigar. Send it to DJ
+      const dj = kacheri.getDJ();
+      signal(dj, { ...message, rasigarId: clientId });
     }
   },
 };
 
-function signal(clients, message) {
-  clients.forEach((client) => {
-    var socket = liveSockets[client.id];
-    logger.log(`signalling socket with clientId : ${client.id}`);
-    socket?.send(JSON.stringify(message));
-  });
+function signal(client, message) {
+  var socket = liveSockets[client];
+  logger.log(`signalling socket with clientId : ${client}`);
+  socket?.send(JSON.stringify(message));
 }
-
-var PartyManager = (function PartyManager() {
-  var sessions = {};
-  function newParty(id) {
-    var id;
-    var clients = [];
-    function getClient(clientId) {
-      return clients.filter((client) => client.id == clientId)[0];
-    }
-    function getMasterClient() {
-      return clients.filter((client) => client.type == "master")[0];
-    }
-    function getSlaveClients() {
-      return clients.filter((client) => client.type == "slave");
-    }
-    function addClient(type, id) {
-      var description;
-      var client = {
-        description,
-        type,
-        id,
-      };
-      clients.push(client);
-      return client;
-    }
-    var party = { id, getClient, addClient, getMasterClient, getSlaveClients };
-    sessions[id] = party;
-    return party;
-  }
-  function getParty(id) {
-    return sessions[id];
-  }
-  return {
-    newParty,
-    getParty,
-  };
-})();
