@@ -103,11 +103,16 @@ export function CreateDJPeer({
     //Event triggered when negotiation can take place as RTCpeer won't be stable
     DJPeer.onnegotiationneeded = () => handleNegotiationNeededEvent(rasigarId);
 
+    DJPeer.onconnectionstatechange = () => {
+      if (DJPeer.connectionState === "disconnected") {
+        delete DJPeers[rasigarId];
+      }
+      sendMessage({ type: "peer-count", count: Object.keys(DJPeers).length });
+    };
+
     for (const track of mediaStream.getTracks()) {
       DJPeer.addTrack(track, mediaStream);
     }
-
-    sendMessage({ type: "peer-count", count: Object.keys(DJPeers).length });
   });
 
   receiveMessage("answer-response", async (message) => {
