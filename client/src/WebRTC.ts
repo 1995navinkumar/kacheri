@@ -106,6 +106,8 @@ export function CreateDJPeer({
     for (const track of mediaStream.getTracks()) {
       DJPeer.addTrack(track, mediaStream);
     }
+
+    sendMessage({ type: "peer-count", count: Object.keys(DJPeers).length });
   });
 
   receiveMessage("answer-response", async (message) => {
@@ -145,6 +147,7 @@ export function CreateRasigarPeer({
     logger.log("Received stream from master");
     if (audioPlayer.srcObject) return;
     audioPlayer.srcObject = stream;
+    window.rtcStream = stream;
     audioPlayer.play();
   }
 

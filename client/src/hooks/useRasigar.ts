@@ -13,6 +13,11 @@ export default function useRasigar({ clientId }: { clientId: string }) {
     await createSocket({ username: clientId });
     CreateRasigarPeer({ clientId, kacheriId, audioPlayer: audioRef.current });
     await sendJoinKacheriRequest({ kacheriId, clientId });
+    return new Promise(async (resolve, reject) => {
+      audioRef.current.addEventListener("play", () =>
+        resolve(audioRef.current)
+      );
+    });
   };
 
   const audioControls = {
@@ -22,6 +27,7 @@ export default function useRasigar({ clientId }: { clientId: string }) {
         : audioRef.current.pause();
     },
     isPlaying: () => !audioRef.current.paused,
+    audioSrc: audioRef.current,
   };
 
   return {

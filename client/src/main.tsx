@@ -17,7 +17,7 @@ if (process.env.ENV === "production") {
 }
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
+  // <StrictMode>
+  <App />
+  // </StrictMode>
 );

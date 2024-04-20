@@ -3,6 +3,7 @@ import { GlobalState, AppActionsList, AppActionsTypes } from "../types";
 export const ActionTypes = {
   setIsRecording: "isRecording",
   setNoOfRasigars: "setNoOfRasigars",
+  setKacheriId: "setKacheriId",
 };
 
 export default function appReducer(
@@ -27,6 +28,17 @@ export default function appReducer(
       },
     };
   }
+
+  if (action.type === ActionTypes.setKacheriId) {
+    return {
+      ...state,
+      app: {
+        ...state.app,
+        kacheriId: action.payload.kacheriId,
+      },
+    };
+  }
+
   return {
     ...state,
   };
@@ -40,5 +52,9 @@ export const AppActions = {
   setNoOfRasigars: (noOfRasigars) => ({
     type: ActionTypes.setNoOfRasigars,
     payload: { noOfRasigars },
+  }),
+  setKacheriId: (kacheriId) => ({
+    type: ActionTypes.setKacheriId,
+    payload: { kacheriId },
   }),
 } as AppActionsTypes;
