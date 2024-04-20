@@ -6,54 +6,75 @@ import {
 import { useConfig } from "../../Providers/ConfigProvider";
 import useDJ from "../../hooks/useDJ";
 import useRasigar from "../../hooks/useRasigar";
+import { useState } from "react";
 
 export default function CreateOrJoin(): JSX.Element {
   const { clientId, mode } = useConfig();
   const { transitionTo } = useScreenTransitioner();
 
-  const { createParty } = useDJ({ clientId });
-  const { joinParty } = useRasigar({ clientId });
+  const { createKacheri } = useDJ({ clientId });
+  const { joinKacheri, audioControls } = useRasigar({ clientId });
 
-  const onCreateParty = async () => {
-    await createParty();
+  const onCreateKacheri = async () => {
+    await createKacheri();
     transitionTo(SlidingLeftDJScreen);
   };
 
-  const onJoinParty = async () => {
-    await joinParty({ partyId: "kacheri" });
-    transitionTo(SlidingLeftRasigarScreen);
+  const onJoinKacheri = async (kacheriId: string) => {
+    await joinKacheri({ kacheriId });
+    const RasigarScreenWithAudio = () => (
+      <SlidingLeftRasigarScreen audioControls={audioControls} />
+    );
+    transitionTo(RasigarScreenWithAudio);
   };
 
   return (
     <div className="flex-column" style={{ gap: "48px" }}>
       <p className="create-description">
-        Get started joining an existing party
+        Get started joining an existing Kacheri
       </p>
       {mode === "extension" ? (
-        <CreatePartyCta onCreateParty={onCreateParty} />
+        <CreateKacheriCta onCreateKacheri={onCreateKacheri} />
       ) : (
-        <JoinPartyCta onJoinParty={onJoinParty} />
+        <JoinKacheriCta onJoinKacheri={onJoinKacheri} />
       )}
     </div>
   );
 }
 
-function JoinPartyCta({ onJoinParty }: { onJoinParty: () => void }) {
+function JoinKacheriCta({
+  onJoinKacheri,
+}: {
+  onJoinKacheri: (k: string) => void;
+}) {
+  const [kacheriId, setKacheriId] = useState("");
+
   return (
-    <div className="party-cta flex-column">
-      <input className="join-input" placeholder="Enter Party ID to join" />
-      <button id="join-party-btn" onClick={onJoinParty}>
-        Join Party
+    <form
+      className="flex-column kacheri-cta"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onJoinKacheri(kacheriId);
+      }}
+    >
+      <input
+        required
+        className="join-input"
+        placeholder="Enter Kacheri ID to join"
+        onChange={(e) => setKacheriId(e.target.value)}
+      />
+      <button className="cta-btn" type="submit">
+        Join Kacheri
       </button>
-    </div>
+    </form>
   );
 }
 
-function CreatePartyCta({ onCreateParty }: { onCreateParty: () => {} }) {
+function CreateKacheriCta({ onCreateKacheri }: { onCreateKacheri: () => {} }) {
   return (
-    <div className="party-cta flex-column">
-      <button id="create-party-btn" onClick={onCreateParty}>
-        Create Party
+    <div className="flex-column kacheri-cta">
+      <button className="cta-btn" onClick={onCreateKacheri}>
+        Create Kacheri
       </button>
     </div>
   );

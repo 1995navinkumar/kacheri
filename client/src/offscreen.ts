@@ -27,7 +27,7 @@ receiveMessage("capture-stream", async (message) => {
 
     const output = new AudioContext();
     source = output.createMediaStreamSource(media);
-    source.connect(output.destination);
+    // source.connect(output.destination);
 
     debug({ message: "connected" });
 
@@ -45,11 +45,11 @@ receiveMessage("create-dj-peer", (message) => {
   CreateDJPeer({
     clientId: message.clientId,
     mediaStream: media,
-    partyId: message.partyId,
+    kacheriId: message.kacheriId,
   });
 });
 
-receiveMessage("stop-streaming", (message) => {
+receiveMessage("stop-kacheri", (message) => {
   debug({ message: "stopping record" });
   if (media) {
     media.getTracks().forEach((t) => t.stop());
@@ -57,6 +57,7 @@ receiveMessage("stop-streaming", (message) => {
   } else {
     debug({ message: "no media" });
   }
+  sendMessage({ type: "delete-kacheri-request", clientId: message.clientId });
 });
 
 export { source, media };

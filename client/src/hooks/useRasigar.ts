@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import {
   createSocket,
   receiveMessageFromSocket,
@@ -6,28 +7,40 @@ import {
 import { CreateRasigarPeer } from "../WebRTC";
 
 export default function useRasigar({ clientId }: { clientId: string }) {
-  const joinParty = async ({ partyId }: { partyId: string }) => {
+  const audioRef = useRef(new Audio());
+
+  const joinKacheri = async ({ kacheriId }: { kacheriId: string }) => {
     await createSocket({ username: clientId });
-    CreateRasigarPeer({ clientId, partyId });
-    await sendJoinPartyRequest({ partyId, clientId });
+    CreateRasigarPeer({ clientId, kacheriId, audioPlayer: audioRef.current });
+    await sendJoinKacheriRequest({ kacheriId, clientId });
+  };
+
+  const audioControls = {
+    togglePlay: () => {
+      audioRef.current.paused
+        ? audioRef.current.play()
+        : audioRef.current.pause();
+    },
+    isPlaying: () => !audioRef.current.paused,
   };
 
   return {
-    joinParty,
+    joinKacheri,
+    audioControls,
   };
 }
 
-function sendJoinPartyRequest({
-  partyId,
+function sendJoinKacheriRequest({
+  kacheriId,
   clientId,
 }: {
   clientId: string;
-  partyId: string;
+  kacheriId: string;
 }): Promise<Record<string, any>> {
   return new Promise((resolve, reject) => {
     try {
-      sendMessageToSocket({ type: "join-party", partyId, clientId });
-      receiveMessageFromSocket("join-party-response", (message) => {
+      sendMessageToSocket({ type: "join-kacheri", kacheriId, clientId });
+      receiveMessageFromSocket("join-kacheri-response", (message) => {
         if (message.success) {
           resolve(message);
         } else {

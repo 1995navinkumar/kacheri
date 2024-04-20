@@ -1,29 +1,29 @@
 import { useEffect } from "react";
 import useBackgroundScript from "../../hooks/useBackgroundScript";
-import { useConfig } from "../../Providers/ConfigProvider";
+import { useGlobalState } from "../../Providers/GlobalStateProvider";
+import { AppActions } from "../../Providers/GlobalStateProvider/reducers/app";
 import { useScreenTransitioner } from "../../Providers/TransitionProvider";
-import { setItem } from "../../utils";
 import { SlidingRightCreateOrJoin } from "../SlidingComponents";
 
 export default function DJScreen(): JSX.Element {
-  const { clientId } = useConfig();
   const { stopKacheri } = useBackgroundScript();
   const { transitionTo } = useScreenTransitioner();
+  const { dispatch } = useGlobalState();
 
   const onKacheriStop = () => {
     stopKacheri();
+    dispatch(AppActions.setIsRecording(false));
     transitionTo(SlidingRightCreateOrJoin);
-    setItem("recording-status", "none");
   };
 
   useEffect(() => {
-    setItem("recording-status", "recording");
+    dispatch(AppActions.setIsRecording(true));
   }, []);
 
   return (
     <div className="flex-column" style={{ gap: "48px" }}>
       <p className="create-description">Kacheri Started</p>
-      <button className="stop-btn" onClick={onKacheriStop}>
+      <button className="cta-btn" onClick={onKacheriStop}>
         Stop Kacheri
       </button>
     </div>

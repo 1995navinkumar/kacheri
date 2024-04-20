@@ -1,7 +1,3 @@
-export enum ChromeMessages {
-  createParty = "createParty",
-}
-
 export function sendMessage(message: Record<string, any>) {
   chrome.runtime.sendMessage(message);
 }
