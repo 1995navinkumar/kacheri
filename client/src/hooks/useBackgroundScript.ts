@@ -4,6 +4,14 @@ import { useConfig } from "../Providers/ConfigProvider";
 export default function useBackgroundScript() {
   const { clientId } = useConfig();
   return {
+    createOffscreenDocument: async () => {
+      return new Promise((resolve, reject) => {
+        sendMessage({ type: "create-offscreen-document" });
+        receiveMessage("create-offscreen-document-response", () =>
+          resolve(true)
+        );
+      });
+    },
     createSocket: async ({ clientId }: { clientId: string }) => {
       return new Promise((resolve, reject) => {
         sendMessage({ type: "create-socket", clientId });

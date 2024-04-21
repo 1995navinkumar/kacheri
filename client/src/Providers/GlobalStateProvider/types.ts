@@ -14,6 +14,7 @@ export type Action = {
 export type AppState = {
   isRecording: boolean;
   noOfRasigars: number;
+  kacheriId?: string;
 };
 
 export type AppAction<T> = {
@@ -29,15 +30,18 @@ export type SetNoOfRasigars = {
   noOfRasigars: number;
 };
 
-export type AppActionsList = AppAction<SetIsRecording & SetNoOfRasigars>;
+export type SetKacheriId = {
+  kacheriId: string;
+};
+
+export type AppActionsList = AppAction<
+  SetIsRecording & SetNoOfRasigars & SetKacheriId
+>;
 
 export type AppActionsTypes = {
-  setIsRecording: (
-    isRecording: boolean
-  ) => AppAction<SetIsRecording>;
-  setNoOfRasigars: (
-    noOfRasigars: number
-  ) => AppAction<SetNoOfRasigars>;
+  setIsRecording: (isRecording: boolean) => AppAction<SetIsRecording>;
+  setNoOfRasigars: (noOfRasigars: number) => AppAction<SetNoOfRasigars>;
+  setKacheriId: (id: string) => AppAction<SetKacheriId>;
 };
 
 // --------- User State Ends ------------

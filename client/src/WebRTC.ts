@@ -1,4 +1,4 @@
-import { receiveMessage, sendMessage } from "./chromeMessageHandler";
+import { sendMessage } from "./chromeMessageHandler";
 import { createLogger } from "./logger";
 import {
   receiveMessageFromSocket,
@@ -53,7 +53,7 @@ export function CreateDJPeer({
     rasigarId: string
   ) {
     if (event.candidate) {
-      sendMessage({
+      sendMessageToSocket({
         kacheriId,
         clientId,
         rasigarId,
@@ -77,7 +77,7 @@ export function CreateDJPeer({
 
       await DJPeer.setLocalDescription(offer);
 
-      sendMessage({
+      sendMessageToSocket({
         type: "offer",
         clientId,
         rasigarId,
@@ -89,7 +89,7 @@ export function CreateDJPeer({
     }
   }
 
-  receiveMessage("offer-request", (message) => {
+  receiveMessageFromSocket("offer-request", (message) => {
     const { rasigarId } = message;
 
     const DJPeer = new RTCPeerConnection({
@@ -103,12 +103,19 @@ export function CreateDJPeer({
     //Event triggered when negotiation can take place as RTCpeer won't be stable
     DJPeer.onnegotiationneeded = () => handleNegotiationNeededEvent(rasigarId);
 
+    DJPeer.onconnectionstatechange = () => {
+      if (DJPeer.connectionState === "disconnected") {
+        delete DJPeers[rasigarId];
+      }
+      sendMessage({ type: "peer-count", count: Object.keys(DJPeers).length });
+    };
+
     for (const track of mediaStream.getTracks()) {
       DJPeer.addTrack(track, mediaStream);
     }
   });
 
-  receiveMessage("answer-response", async (message) => {
+  receiveMessageFromSocket("answer-response", async (message) => {
     try {
       const { rasigarId } = message;
       const DJPeer = DJPeers[rasigarId];
@@ -119,7 +126,7 @@ export function CreateDJPeer({
     }
   });
 
-  receiveMessage("set-remote-candidate", (message) => {
+  receiveMessageFromSocket("set-remote-candidate", (message) => {
     const { rasigarId } = message;
     const DJPeer = DJPeers[rasigarId];
     var candidate = new RTCIceCandidate(message.candidate);
@@ -145,6 +152,7 @@ export function CreateRasigarPeer({
     logger.log("Received stream from master");
     if (audioPlayer.srcObject) return;
     audioPlayer.srcObject = stream;
+    window.rtcStream = stream;
     audioPlayer.play();
   }
 
