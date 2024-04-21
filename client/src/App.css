@@ -19,11 +19,13 @@
 .main-header {
   height: 84px;
   border-bottom: 1px solid #b8860b;
+  background: linear-gradient(#b8860b, transparent);
 }
 
 .main-header__title {
   font-size: 28px;
   font-weight: bold;
+  color: beige;
 }
 
 .main-body {
@@ -35,6 +37,8 @@
 .main-footer {
   height: 44px;
   border-top: 1px solid #b8860b;
+  background: linear-gradient(#b8860b, transparent);
+  color: beige;
 }
 
 .create-description {

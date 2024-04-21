@@ -2,6 +2,12 @@ import { receiveMessage, sendMessage } from "./chromeMessageHandler";
 import { createLogger } from "./logger";
 import { CreateDJPeer } from "./WebRTC";
 
+import {
+  createSocket,
+  receiveMessageFromSocket,
+  sendMessageToSocket,
+} from "./socketMessageHandler";
+
 const logger = createLogger({ moduleName: "offscreen" });
 
 let source: MediaStreamAudioSourceNode;
@@ -10,6 +16,31 @@ let media: MediaStream;
 function debug(message: Record<string, any>) {
   logger.log(JSON.stringify(message));
 }
+
+receiveMessage("create-socket", async (message) => {
+  try {
+    window.wssocket = await createSocket({ username: message.clientId });
+    sendMessage({ type: "create-socket-response", success: true });
+  } catch (err) {
+    sendMessage({ type: "create-socket-response", success: false });
+  }
+});
+
+receiveMessage("create-kacheri-request", async (message) => {
+  sendMessageToSocket({
+    type: "create-kacheri-request",
+    clientId: message.clientId,
+  });
+  receiveMessageFromSocket("create-kacheri-response", sendMessage);
+});
+
+receiveMessage("delete-kacheri-request", (message) => {
+  sendMessageToSocket({
+    type: "delete-kacheri-request",
+    clientId: message.clientId,
+  });
+  sendMessage({ type: "delete-offscreen-document" });
+});
 
 receiveMessage("capture-stream", async (message) => {
   try {
@@ -41,7 +72,7 @@ receiveMessage("capture-stream", async (message) => {
   }
 });
 
-receiveMessage("create-dj-peer", (message) => {
+receiveMessage("initiate-peer", (message) => {
   CreateDJPeer({
     clientId: message.clientId,
     mediaStream: media,

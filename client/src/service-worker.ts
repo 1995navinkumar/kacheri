@@ -1,25 +1,19 @@
 import { sendMessage, receiveMessage } from "./chromeMessageHandler";
 import { createLogger } from "./logger";
-import {
-  createSocket,
-  receiveMessageFromSocket,
-  sendMessageToSocket,
-} from "./socketMessageHandler";
 
 const logger = createLogger({ moduleName: "service-worker" });
 
-receiveMessage("create-socket", async (message) => {
-  try {
-    await createSocket({ username: message.clientId });
-    sendMessage({ type: "create-socket-response", success: true });
-  } catch (err) {
-    sendMessage({ type: "create-socket-response", success: false });
-  }
+receiveMessage("create-offscreen-document", async (message) => {
+  await createOffScreenDocument();
+  sendMessage({ type: "create-offscreen-document-response", success: true });
+});
+
+receiveMessage("delete-offscreen-document", async (message) => {
+  deleteOffScreenDocument();
 });
 
 receiveMessage("capture-audio", async (message) => {
   try {
-    await createOffScreenDocument();
     const tabId = await getTab();
     logger.log(tabId.toString());
     const mediaStreamId = await getAudioStream(tabId);
@@ -30,37 +24,6 @@ receiveMessage("capture-audio", async (message) => {
     logger.error(err);
   }
 });
-
-receiveMessage("create-kacheri-request", async (message) => {
-  sendMessageToSocket({
-    type: "create-kacheri-request",
-    clientId: message.clientId,
-  });
-  receiveMessageFromSocket("create-kacheri-response", sendMessage);
-});
-
-receiveMessage("delete-kacheri-request", (message) => {
-  sendMessageToSocket({
-    type: "delete-kacheri-request",
-    clientId: message.clientId,
-  });
-  deleteOffScreenDocument();
-});
-
-receiveMessage("initiate-peer", async (message) => {
-  sendMessage({
-    type: "create-dj-peer",
-    clientId: message.clientId,
-    kacheriId: message.kacheriId,
-  });
-  receiveMessageFromSocket("offer-request", sendMessage);
-  receiveMessageFromSocket("answer-response", sendMessage);
-  receiveMessageFromSocket("set-remote-candidate", sendMessage);
-});
-
-receiveMessage("offer", sendMessageToSocket);
-
-receiveMessage("offer-candidate", sendMessageToSocket);
 
 async function deleteOffScreenDocument() {
   return chrome.offscreen.closeDocument();
