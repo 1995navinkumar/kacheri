@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Fira Sans", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -155,6 +155,10 @@ table {
   justify-content: center;
 }
 
+.flex-1 {
+  flex: 1;
+}
+
 .full-height {
   height: 100%;
 }
@@ -164,6 +168,10 @@ table {
 }
 
 /* App css */
+
+* {
+  box-sizing: border-box;
+}
 
 html,
 body,

@@ -11,17 +11,20 @@ function App() {
   return (
     <ConfigProvider>
       <GlobalStateProvider>
-        <div className="flex-row align-center justify-center full-height full-width">
+        <div
+          className="flex-row align-center justify-center full-height full-width"
+          style={{ background: "black", padding: "8px" }}
+        >
           <section className="main flex-column">
             <header className="main-header flex-row align-center justify-center">
-              <h3 className="main-header__title">Kacheri</h3>
+              <p className="main-header__title">&copy; sknk</p>
             </header>
             <section className="main-body">
               <Main />
             </section>
-            <footer className="main-footer flex-row align-center justify-center">
+            {/* <footer className="main-footer flex-row align-center justify-center">
               <p>&copy; sknk</p>
-            </footer>
+            </footer> */}
           </section>
         </div>
       </GlobalStateProvider>
