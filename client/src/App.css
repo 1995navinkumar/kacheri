@@ -1,52 +1,67 @@
+:root {
+  --primary-color: #ffcb1f;
+  --secondary-color: #000000;
+  --secondary-text: #9f7a16;
+}
+
 body {
-  background-color: beige;
+  background-color: white;
 }
 
 .main {
   width: 400px;
   height: 644px;
-  border: 1px solid #b8860b;
+  border: 1px solid var(--primary-color);
   border-radius: 8px;
-  background: #000000;
-  color: #b8860b;
+  background: var(--primary-color);
+  color: var(--secondary-color);
 }
 
 @media (max-width: 481px) {
   .main {
     width: 100%;
     height: 100%;
-    border: none;
-    border-radius: 0;
   }
 }
 
 .main-header {
-  height: 84px;
-  border-bottom: 1px solid #b8860b;
-  background: linear-gradient(#b8860b, transparent);
+  height: 24px;
 }
 
 .main-header__title {
-  font-size: 28px;
   font-weight: bold;
-  color: beige;
+  padding-top: 12px;
+  color: var(--secondary-text);
 }
 
 .main-body {
   flex: 1;
-  padding: 48px;
-  padding-top: 108px;
+  padding: 24px;
+  padding-bottom: 64px;
+  font: "Fira Sans", sans-serif;
+  /* padding-top: 108px; */
 }
 
 .main-footer {
   height: 44px;
-  border-top: 1px solid #b8860b;
-  background: linear-gradient(#b8860b, transparent);
+  border-top: 1px solid var(--primary-color);
+  background: linear-gradient(var(--primary-color), transparent);
   color: beige;
 }
 
+.home-container {
+  font-size: 54px;
+  line-height: 64px;
+}
+
 .create-description {
-  font-size: 22px;
+  font-size: 54px;
+}
+
+.styled-app-name {
+  /* font-style: italic;
+  font-weight: bolder; */
+  font: italic small-caps bolder 54px/64px cursive;
 }
 
 .kacheri-cta {
@@ -54,19 +69,21 @@ body {
 }
 
 .cta-btn {
-  background: #b8860b;
-  color: black;
-  padding: 8px;
+  background: black;
+  color: white;
+  padding: 12px;
   border-radius: 8px;
-  border: 1px solid sandybrown;
+  /* border: 1px solid sandybrown; */
   font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 .join-input {
-  padding: 8px;
+  padding: 12px;
   border-radius: 8px;
-  border: 1px solid #b8860b;
-  background: antiquewhite;
+  border: 1px solid var(--primary-color);
+  background: white;
 }
 
 .play-btn {
@@ -76,5 +93,5 @@ body {
 }
 
 #waveform {
-  border-radius: 50%;
+  border-radius: 36%;
 }

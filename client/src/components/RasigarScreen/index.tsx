@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { FaPlay } from "react-icons/fa";
+import { FaPause } from "react-icons/fa6";
 import { useGlobalState } from "../../Providers/GlobalStateProvider";
 
 export default function RasigarScreen({ audioControls }): JSX.Element {
@@ -74,7 +76,7 @@ export default function RasigarScreen({ audioControls }): JSX.Element {
     const canvas = document.getElementById("waveform") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d");
     const backgroundColor = "rgba(0, 0, 0, 0.5)";
-    const waveformColor = "#B8860B";
+    const waveformColor = "white";
     drawWaveform({
       ctx,
       backgroundColor,
@@ -85,9 +87,12 @@ export default function RasigarScreen({ audioControls }): JSX.Element {
   }, []);
 
   return (
-    <div className="flex-column align-center" style={{ gap: "48px" }}>
-      <div className="create-description">
-        Listening to Kacheri - {kacheriId}
+    <div
+      className="flex-column align-center justify-center full-height"
+      style={{ gap: "48px" }}
+    >
+      <div>
+        <p className="styled-app-name">Kacheri</p>
       </div>
       <div id="waveform-container" style={{ width: "200px", height: "200px" }}>
         <canvas
@@ -99,7 +104,7 @@ export default function RasigarScreen({ audioControls }): JSX.Element {
       </div>
       <div className="flex-row align-center justify-center">
         <button className="cta-btn play-btn" onClick={onToggleClick}>
-          <img src={isPlaying ? "assets/pause.svg" : "assets/play.svg"} />
+          {!isPlaying ? <FaPlay /> : <FaPause size={"large"} />}
         </button>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { receiveMessage } from "../../chromeMessageHandler";
+import { receiveMessage, sendMessage } from "../../chromeMessageHandler";
 import useBackgroundScript from "../../hooks/useBackgroundScript";
 import { useConfig } from "../../Providers/ConfigProvider";
 import { useGlobalState } from "../../Providers/GlobalStateProvider";
@@ -36,7 +36,8 @@ export default function DJScreen(): JSX.Element {
 
   useEffect(() => {
     dispatch(AppActions.setIsRecording(true));
-    receiveMessage("peer-count", (message) => {
+    sendMessage({ type: "peer-count-request" });
+    receiveMessage("peer-count-response", (message) => {
       const { count } = message;
       dispatch(AppActions.setNoOfRasigars(count));
     });
@@ -44,16 +45,23 @@ export default function DJScreen(): JSX.Element {
 
   return (
     <div className="flex-column align-center" style={{ gap: "48px" }}>
-      <div className="flex-row align-center" style={{ gap: "12px" }}>
-        <p className="create-description">Kacheri Started</p>
+      <div
+        className="flex-row align-center"
+        style={{ gap: "12px", paddingTop: "64px" }}
+      >
+        <p className="create-description">
+          <span className="styled-app-name">Kacheri</span>
+        </p>
+      </div>
+      <div style={{ fontSize: "18px" }}>Rasigars : {noOfRasigars}</div>
+      <div className="flex-row align-center" style={{ gap: "24px" }}>
         <button className="cta-btn" onClick={copyLink}>
           {linkCopied ? "copied" : "copy link"}
         </button>
+        <button className="cta-btn" onClick={onKacheriStop}>
+          Stop Kacheri
+        </button>
       </div>
-      <div>Rasigars : {noOfRasigars}</div>
-      <button className="cta-btn" onClick={onKacheriStop}>
-        Stop Kacheri
-      </button>
     </div>
   );
 }

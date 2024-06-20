@@ -1,4 +1,4 @@
-import { sendMessage } from "./chromeMessageHandler";
+import { sendMessage, receiveMessage } from "./chromeMessageHandler";
 import { createLogger } from "./logger";
 import {
   receiveMessageFromSocket,
@@ -63,6 +63,10 @@ export function CreateDJPeer({
     }
   }
 
+  receiveMessage("peer-count-request", () => {
+    sendMessage({ type: "peer-count-response", count: Object.keys(DJPeers).length });
+  });
+
   async function handleNegotiationNeededEvent(rasigarId: string) {
     try {
       const DJPeer = DJPeers[rasigarId];
@@ -107,7 +111,7 @@ export function CreateDJPeer({
       if (DJPeer.connectionState === "disconnected") {
         delete DJPeers[rasigarId];
       }
-      sendMessage({ type: "peer-count", count: Object.keys(DJPeers).length });
+      sendMessage({ type: "peer-count-response", count: Object.keys(DJPeers).length });
     };
 
     for (const track of mediaStream.getTracks()) {

@@ -35,16 +35,25 @@ export default function CreateOrJoin(): JSX.Element {
     dispatch(AppActions.setNoOfRasigars(0));
   }, []);
 
+  const linkCopied = false;
+  const copyLink = () => {};
+  const noOfRasigars = 1;
+  const onKacheriStop = () => {};
+
   return (
-    <div className="flex-column" style={{ gap: "48px" }}>
-      <p className="create-description">
-        Get started by joining an existing Kacheri
-      </p>
-      {mode === "extension" ? (
-        <CreateKacheriCta onCreateKacheri={onCreateKacheri} />
-      ) : (
-        <JoinKacheriCta onJoinKacheri={onJoinKacheri} />
-      )}
+    <div className="flex-column full-height" style={{ gap: "48px" }}>
+      <div className="flex-1"></div>
+      <div className="home-container flex-column" style={{ gap: "24px" }}>
+        <p className="create-description ">
+          Get started by {mode == "extension" ? "creating" : "joining"} a{" "}
+          <span className="styled-app-name">Kacheri</span>
+        </p>
+        {mode === "extension" ? (
+          <CreateKacheriCta onCreateKacheri={onCreateKacheri} />
+        ) : (
+          <JoinKacheriCta onJoinKacheri={onJoinKacheri} />
+        )}
+      </div>
     </div>
   );
 }
@@ -82,7 +91,7 @@ function JoinKacheriCta({
         onChange={(e) => setKacheriId(e.target.value)}
       />
       <button className="cta-btn" type="submit">
-        Join Kacheri
+        Join
       </button>
     </form>
   );
