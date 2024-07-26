@@ -60,7 +60,7 @@ function transformHTML(srcPath, destPath) {
   const htmlContent = readFileSync(srcPath, "utf-8");
   const modifiedContent = htmlContent.replace(
     "$baseHref",
-    process.env.BASE ? `${process.env.BASE}/` : "/"
+    process.env.BASE ? `/${process.env.BASE}/` : "/"
   );
   writeFileSync(destPath, modifiedContent);
 }
