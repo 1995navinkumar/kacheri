@@ -35,10 +35,10 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Install deps
+      - name: Install Dependencies
         run: npm install
 
-      - name: build
+      - name: Build client
         run: npm run build
 
       - name: Upload artifact

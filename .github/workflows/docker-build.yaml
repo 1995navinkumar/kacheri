@@ -2,11 +2,13 @@ name: Docker build and publish
 
 on:
   workflow_dispatch:
-    inputs:
-      dockerpush:
-        description: can push to docker hub?
-        type: boolean
-        default: true
+  push:
+    branches: [master]
+
+env:
+  namespace: kacheri
+  deployment: kacheri
+  tag: ${{ vars.DOCKERHUB_USERNAME}}/kacheri:${{ github.sha }}
 
 jobs:
   docker-build:
@@ -26,6 +28,14 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
-          push: ${{ inputs.dockerpush }}
+          push: true
           platforms: linux/amd64,linux/arm64
-          tags: ${{ vars.DOCKERHUB_USERNAME}}/kacheri:${{ github.sha }}
+          tags: ${{ env.tag }}
+      
+      - name: Install kubectl
+        uses: tale/kubectl-action@v1
+        with:
+          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Update image
+        run: kubectl set image deployment/${{ env.deployment }} ${{ env.deployment }}=${{ env.tag }} -n ${{ env.namespace }}
