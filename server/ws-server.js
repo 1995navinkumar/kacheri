@@ -21,7 +21,10 @@ function heartbeat() {
   this.isAlive = true;
 }
 
-const server = http.createServer();
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("HTTP server working\n");
+});
 
 server.listen(8080);
 
