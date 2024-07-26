@@ -1,4 +1,5 @@
 import WebSocket from "ws";
+import http from "http";
 import { CreateKacheri, deleteKacheri, getKacheri } from "./kacheri.js";
 import { createLogger } from "./logger.js";
 
@@ -20,8 +21,12 @@ function heartbeat() {
   this.isAlive = true;
 }
 
+const server = http.createServer();
+
+server.listen(8080);
+
 export default function Socket() {
-  wss = new WebSocket.Server({ port: 8080 });
+  wss = new WebSocket.Server({ noServer: true });
   wss.on("connection", function connection(ws, req) {
     storeClientWS(ws);
     ws.on("message", pipe(messageParser, actionInvoker));
@@ -30,6 +35,13 @@ export default function Socket() {
     ws.on("close", function () {
       logger.log("terminating broken connections");
       liveSockets[ws.protocol] = undefined;
+    });
+  });
+
+  server.on("upgrade", (request, socket, head) => {
+    // Allow CORS for WebSocket connections
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit("connection", ws, request);
     });
   });
 }
