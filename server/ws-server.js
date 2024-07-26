@@ -28,6 +28,7 @@ server.listen(8080);
 export default function Socket() {
   wss = new WebSocket.Server({ noServer: true });
   wss.on("connection", function connection(ws, req) {
+    logger.log("onConnection called");
     storeClientWS(ws);
     ws.on("message", pipe(messageParser, actionInvoker));
     ws.isAlive = true;
@@ -39,8 +40,11 @@ export default function Socket() {
   });
 
   server.on("upgrade", (request, socket, head) => {
+    logger.log("upgrade called");
+
     // Allow CORS for WebSocket connections
     wss.handleUpgrade(request, socket, head, (ws) => {
+      logger.log("upgrade handled");
       wss.emit("connection", ws, request);
     });
   });
