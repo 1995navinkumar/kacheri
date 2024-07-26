@@ -44,6 +44,7 @@ export default function Socket() {
 
   server.on("upgrade", (request, socket, head) => {
     logger.log("upgrade called");
+    logger.log(`req headers - ${request.headers}`);
 
     // Allow CORS for WebSocket connections
     wss.handleUpgrade(request, socket, head, (ws) => {
