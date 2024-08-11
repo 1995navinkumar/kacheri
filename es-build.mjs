@@ -30,7 +30,8 @@ const buildOptions = {
   define: {
     "process.env.MODE": `"${MODE}"`,
     "process.env.ENV": `"${ENV}"`,
-    "process.env.SERVER_URL": `"https://dsrm21wuv7ub2.cloudfront.net/kacheri"`
+    "process.env.SERVER_URL": `"https://dsrm21wuv7ub2.cloudfront.net/kacheri"`,
+    "process.env.CLIENT_URL": `"https://1995navinkumar.github.io/kacheri"`,
   },
   outdir: OUTPUT_DIR,
   logLevel: "info",

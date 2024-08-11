@@ -36,8 +36,9 @@ export function ServerPush(req, res) {
 
 export function Receive(req, res) {
   const data = req.body;
-  console.log(data);
+  logger.log(data);
   actionInvoker(data);
+  res.end("Data Sent");
 }
 
 function storeClientWS(clientId, res) {

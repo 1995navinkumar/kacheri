@@ -7,9 +7,9 @@ import { AppActions } from "../../Providers/GlobalStateProvider/reducers/app";
 import { useScreenTransitioner } from "../../Providers/TransitionProvider";
 import { SlidingRightCreateOrJoin } from "../SlidingComponents";
 
-const APP_URL =
+const CLIENT_URL =
   process.env.ENV === "production"
-    ? process.env.SERVER_URL
+    ? process.env.CLIENT_URL
     : "http://localhost:8000";
 
 export default function DJScreen(): JSX.Element {
@@ -27,7 +27,7 @@ export default function DJScreen(): JSX.Element {
   };
 
   const copyLink = () => {
-    navigator.clipboard.writeText(`${APP_URL}?kacheriId=${clientId}`);
+    navigator.clipboard.writeText(`${CLIENT_URL}?kacheriId=${clientId}`);
     setLinkCopied(true);
     setTimeout(() => {
       setLinkCopied(false);
