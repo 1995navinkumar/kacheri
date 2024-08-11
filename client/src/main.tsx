@@ -7,7 +7,7 @@ import { version } from "../../package.json";
 
 if (process.env.ENV === "production") {
   initializeFaro({
-    url: "https://gently-concise-dogfish.ngrok-free.app/faro-grafana/collect",
+    url: `${process.env.SERVER_URL}/faro-grafana/collect`,
     app: {
       name: "kacheri",
       version,

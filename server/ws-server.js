@@ -1,5 +1,3 @@
-import WebSocket from "ws";
-import http from "http";
 import { CreateKacheri, deleteKacheri, getKacheri } from "./kacheri.js";
 import { createLogger } from "./logger.js";
 
@@ -11,76 +9,39 @@ const pipe =
     fns.reduce((y, f) => f(y), x);
 
 let liveSockets = {};
-let wss;
 
-function noop() {
-  // logger.log("pinging active clients");
+function formatData(data) {
+  return `data: ${JSON.stringify(data)}\n\n`;
 }
 
-function heartbeat() {
-  this.isAlive = true;
-}
-
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" });
-  res.end("HTTP server working\n");
-});
-
-server.listen(8080);
-
-export default function Socket() {
-  wss = new WebSocket.Server({ noServer: true });
-  wss.on("connection", function connection(ws, req) {
-    logger.log("onConnection called");
-    storeClientWS(ws);
-    ws.on("message", pipe(messageParser, actionInvoker));
-    ws.isAlive = true;
-    ws.on("pong", heartbeat);
-    ws.on("close", function () {
-      logger.log("terminating broken connections");
-      liveSockets[ws.protocol] = undefined;
-    });
-  });
-
-  server.on("upgrade", (request, socket, head) => {
-    logger.log("upgrade called");
-    logger.log(`req headers - ${request.headers}`);
-
-    // Allow CORS for WebSocket connections
-    wss.handleUpgrade(request, socket, head, (ws) => {
-      logger.log("upgrade handled");
-      wss.emit("connection", ws, request);
-    });
+export function ServerPush(req, res) {
+  const headers = {
+    "Content-Type": "text/event-stream",
+    Connection: "keep-alive",
+    "Cache-Control": "no-cache",
+  };
+  const clientId = req.query?.clientId;
+  if (!clientId) {
+    res.status(500).end("No ClientId found");
+    return;
+  }
+  res.writeHead(200, headers);
+  storeClientWS(clientId, res);
+  res.write(formatData({ clientId, type: "connection" }));
+  req.on("close", () => {
+    logger.log(`${clientId} Connection closed`);
+    delete liveSockets[clientId];
   });
 }
 
-setInterval(function ping() {
-  wss.clients.forEach(function each(ws) {
-    if (ws.isAlive === false) {
-      logger.log("terminating broken connections");
-      return ws.terminate();
-    }
-
-    ws.isAlive = false;
-    ws.ping(noop);
-  });
-}, 30000);
-
-function storeClientWS(ws, req) {
-  //has to improve
-  var user = ws.protocol;
-  liveSockets[user] = ws;
-  ws.send(
-    JSON.stringify({
-      type: "connection",
-      uuid: user,
-    })
-  );
+export function Receive(req, res) {
+  const data = req.body;
+  console.log(data);
+  actionInvoker(data);
 }
 
-function messageParser(message) {
-  logger.log(message);
-  return JSON.parse(message);
+function storeClientWS(clientId, res) {
+  liveSockets[clientId] = res;
 }
 
 function actionInvoker(data) {
@@ -183,5 +144,5 @@ var actions = {
 function signal(client, message) {
   var socket = liveSockets[client];
   logger.log(`signalling socket with clientId : ${client}`);
-  socket?.send(JSON.stringify(message));
+  socket.write(formatData(message));
 }

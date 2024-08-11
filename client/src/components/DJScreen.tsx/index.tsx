@@ -7,9 +7,9 @@ import { AppActions } from "../../Providers/GlobalStateProvider/reducers/app";
 import { useScreenTransitioner } from "../../Providers/TransitionProvider";
 import { SlidingRightCreateOrJoin } from "../SlidingComponents";
 
-const SERVER_URL =
+const APP_URL =
   process.env.ENV === "production"
-    ? "https://gently-concise-dogfish.ngrok-free.app/kacheri"
+    ? process.env.SERVER_URL
     : "http://localhost:8000";
 
 export default function DJScreen(): JSX.Element {
@@ -27,7 +27,7 @@ export default function DJScreen(): JSX.Element {
   };
 
   const copyLink = () => {
-    navigator.clipboard.writeText(`${SERVER_URL}?kacheriId=${clientId}`);
+    navigator.clipboard.writeText(`${APP_URL}?kacheriId=${clientId}`);
     setLinkCopied(true);
     setTimeout(() => {
       setLinkCopied(false);
