@@ -3,7 +3,6 @@ name: Docker build and publish
 on:
   workflow_dispatch:
   push:
-    branches: [master]
 
 env:
   namespace: kacheri
@@ -32,10 +31,10 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ env.tag }}
       
-      - name: Install kubectl
-        uses: tale/kubectl-action@v1
-        with:
-          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+      # - name: Install kubectl
+      #   uses: tale/kubectl-action@v1
+      #   with:
+      #     base64-kube-config: ${{ secrets.KUBE_CONFIG }}
 
-      - name: Update image
-        run: kubectl set image deployment/${{ env.deployment }} ${{ env.deployment }}=${{ env.tag }} -n ${{ env.namespace }}
+      # - name: Update image
+      #   run: kubectl set image deployment/${{ env.deployment }} ${{ env.deployment }}=${{ env.tag }} -n ${{ env.namespace }}
