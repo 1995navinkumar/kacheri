@@ -7,11 +7,16 @@ import {
 } from "fs";
 import * as esbuild from "esbuild";
 import archiver from "archiver";
+import os from "os";
 
 const MODE = process.env.MODE ?? "web";
 const ENV = process.env.ENV ?? "production";
 const OUTPUT_DIR = `dist/${MODE}`;
 const ASSETS_DIR = `${OUTPUT_DIR}/assets`;
+const SERVER_URL =
+  ENV === "production"
+    ? `https://kacheri.sknk.in`
+    : `http://${getLocalIPAddress()}:8000`;
 
 const entryPoints =
   MODE === "web"
@@ -30,8 +35,7 @@ const buildOptions = {
   define: {
     "process.env.MODE": `"${MODE}"`,
     "process.env.ENV": `"${ENV}"`,
-    "process.env.SERVER_URL": `"https://dsrm21wuv7ub2.cloudfront.net/kacheri"`,
-    "process.env.CLIENT_URL": `"https://1995navinkumar.github.io/kacheri"`,
+    "process.env.SERVER_URL": `"${SERVER_URL}"`,
   },
   outdir: OUTPUT_DIR,
   logLevel: "info",
@@ -78,4 +82,18 @@ function zipExtension(sourceDir, destinationDir) {
   zipper.directory(sourceDir, false);
 
   zipper.finalize();
+}
+
+function getLocalIPAddress() {
+  const interfaces = os.networkInterfaces();
+
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      // Skip internal (loopback) and non-IPv4 addresses
+      if (iface.family === "IPv4" && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return "localhost";
 }
