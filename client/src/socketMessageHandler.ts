@@ -7,11 +7,7 @@ const logger = createLogger({ moduleName: "ws" });
 let socket: EventSource;
 
 function getEndpointURL() {
-  if (process.env.ENV === "production") {
-    return process.env.SERVER_URL;
-  } else {
-    return `http://localhost:8000`;
-  }
+  return process.env.SERVER_URL;
 }
 
 export function createSocket({
@@ -25,22 +21,9 @@ export function createSocket({
       resolve(socket);
     }
     const endpointURL = getEndpointURL();
-    let connection: EventSource;
-    if (process.env.ENV === "production") {
-      connection = new EventSource(
-        `${endpointURL}/register?clientId=${username}`
-      );
-    } else {
-      if (process.env.MODE === "extension") {
-        connection = new EventSource(
-          `${endpointURL}/register?clientId=${username}`
-        );
-      } else {
-        connection = new EventSource(
-          `${endpointURL}/register?clientId=${username}`
-        );
-      }
-    }
+    const connection: EventSource = new EventSource(
+      `${endpointURL}/register?clientId=${username}`
+    );
     console.log(connection);
 
     connection.onopen = function () {

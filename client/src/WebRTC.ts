@@ -14,22 +14,19 @@ export type Peer = {
   peer: RTCPeerConnection;
 };
 
+const ip = `209.38.121.57`;
+const port = `3478`;
+
 const iceServers = [
   {
-    url: "stun:144.24.128.160:7001",
-    urls: "stun:144.24.128.160:7001",
+    url: `stun:${ip}:${port}`,
+    urls: `stun:${ip}:${port}`,
   },
   {
-    url: "turn:144.24.128.160:7001?transport=udp",
-    username: "navin",
-    urls: "turn:144.24.128.160:7001?transport=udp",
-    credential: "rtc",
-  },
-  {
-    url: "turn:144.24.128.160:5349?transport=tcp",
-    username: "navin",
-    urls: "turn:144.24.128.160:5349?transport=tcp",
-    credential: "rtc",
+    url: `turn:${ip}:${port}?transport=udp`,
+    username: "sknk_admin",
+    urls: `turn:${ip}:${port}?transport=udp`,
+    credential: "sknk_turn_S",
   },
 ];
 
@@ -64,7 +61,10 @@ export function CreateDJPeer({
   }
 
   receiveMessage("peer-count-request", () => {
-    sendMessage({ type: "peer-count-response", count: Object.keys(DJPeers).length });
+    sendMessage({
+      type: "peer-count-response",
+      count: Object.keys(DJPeers).length,
+    });
   });
 
   async function handleNegotiationNeededEvent(rasigarId: string) {
@@ -111,7 +111,10 @@ export function CreateDJPeer({
       if (DJPeer.connectionState === "disconnected") {
         delete DJPeers[rasigarId];
       }
-      sendMessage({ type: "peer-count-response", count: Object.keys(DJPeers).length });
+      sendMessage({
+        type: "peer-count-response",
+        count: Object.keys(DJPeers).length,
+      });
     };
 
     for (const track of mediaStream.getTracks()) {

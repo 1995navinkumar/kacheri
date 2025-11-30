@@ -7,10 +7,7 @@ import { AppActions } from "../../Providers/GlobalStateProvider/reducers/app";
 import { useScreenTransitioner } from "../../Providers/TransitionProvider";
 import { SlidingRightCreateOrJoin } from "../SlidingComponents";
 
-const CLIENT_URL =
-  process.env.ENV === "production"
-    ? process.env.CLIENT_URL
-    : "http://localhost:8000";
+const SERVER_URL = process.env.SERVER_URL;
 
 export default function DJScreen(): JSX.Element {
   const { stopKacheri } = useBackgroundScript();
@@ -27,7 +24,7 @@ export default function DJScreen(): JSX.Element {
   };
 
   const copyLink = () => {
-    navigator.clipboard.writeText(`${CLIENT_URL}?kacheriId=${clientId}`);
+    navigator.clipboard.writeText(`${SERVER_URL}?kacheriId=${clientId}`);
     setLinkCopied(true);
     setTimeout(() => {
       setLinkCopied(false);
