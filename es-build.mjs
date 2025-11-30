@@ -56,6 +56,7 @@ if (MODE === "extension") {
   zipExtension("dist/extension", "dist/web/downloads");
 } else {
   transformHTML("client/index.html", "dist/web/index.html");
+  cpSync("client/manifest.json", "dist/web/manifest.json");
 }
 
 mkdirSync(ASSETS_DIR, { recursive: true });
